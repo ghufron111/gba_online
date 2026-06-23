@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GBA Vault — Emulator Personal</title>
+  <meta name="description" content="Emulator Game Boy Advance berbasis web. Mainkan ROM GBA favoritmu langsung di browser." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="coi-serviceworker.js"></script>
+</head>
+<body>
+
+  <!-- Background orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🎮</span>
+        <span class="logo-text">GBA <span class="logo-accent">Vault</span></span>
+      </div>
+      <nav class="nav">
+        <a href="index.html" class="nav-link active">Library</a>
+        <a href="#" class="nav-link" id="add-rom-btn">+ Add ROM</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">Game Boy Advance</div>
+    <h1 class="hero-title">Your Personal<br /><span class="gradient-text">GBA Collection</span></h1>
+    <p class="hero-sub">Mainkan ROM GBA favoritmu langsung di browser. Tanpa instalasi, tanpa batas.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-val" id="rom-count">0</span>
+        <span class="stat-label">ROM Tersimpan</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val">∞</span>
+        <span class="stat-label">Slot Save State</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val">🎮</span>
+        <span class="stat-label">Gamepad Support</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Play Drop Zone -->
+  <section class="quick-play-section">
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-icon">📂</div>
+      <div class="drop-title">Drop ROM di sini</div>
+      <div class="drop-sub">atau klik untuk memilih file .gba / .gbc / .gb</div>
+      <input type="file" id="rom-file-input" accept=".gba,.gbc,.gb,.zip" hidden />
+      <button class="btn-primary" id="browse-btn">Pilih File ROM</button>
+    </div>
+  </section>
+
+  <!-- Library -->
+  <section class="library-section">
+    <div class="section-header">
+      <h2 class="section-title">Library Saya</h2>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Cari game..." class="search-input" />
+      </div>
+    </div>
+
+    <div class="game-grid" id="game-grid">
+      <!-- Cards will be rendered here by JS -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🕹️</div>
+        <div class="empty-title">Belum ada game</div>
+        <div class="empty-sub">Drop file ROM di atas atau klik "Pilih File ROM" untuk memulai.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal: Add ROM from URL -->
+  <div class="modal-overlay" id="url-modal">
+    <div class="modal-box">
+      <button class="modal-close" id="close-url-modal">✕</button>
+      <h3 class="modal-title">🌐 Tambah ROM dari URL</h3>
+      <p class="modal-desc">Masukkan URL langsung ke file .gba untuk menambahkan ke library.</p>
+      <input type="text" id="rom-url-input" class="modal-input" placeholder="https://example.com/game.gba" />
+      <input type="text" id="rom-name-input" class="modal-input" placeholder="Nama game (opsional)" />
+      <div class="modal-actions">
+        <button class="btn-secondary" id="cancel-url">Batal</button>
+        <button class="btn-primary" id="confirm-url">Tambah</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="idb.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

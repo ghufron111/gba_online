@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GBA Vault — Player</title>
+    <meta name="description" content="Mainkan game GBA di browser menggunakan EmulatorJS." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="coi-serviceworker.js"></script>
+
+    <style>
+        /* ══════════════════════════════════════
+       Player Page — full layout
+       ══════════════════════════════════════ */
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── Header ─────────────────────────── */
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(7, 7, 15, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--card-border);
+        }
+
+        .player-meta {
+            min-width: 0;
+        }
+
+        .player-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-subtitle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ── Main area ──────────────────────── */
+        .player-body {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        /* ── Emulator panel ─────────────────── */
+        .emu-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            min-width: 0;
+            position: relative;
+        }
+
+        /* EmulatorJS mounts inside #game.
+       Give it 100% width & height so EJS fills it. */
+        #game {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            display: block;
+            position: relative;
+        }
+
+        /* ── Loading overlay ────────────────── */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: #050510;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            z-index: 20;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 3px solid rgba(124, 58, 237, 0.2);
+            border-top-color: #7c3aed;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-game-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            max-width: 280px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .loading-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .loading-progress-wrap {
+            width: 200px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            animation: indeterminate 1.5s ease-in-out infinite;
+        }
+
+        @keyframes indeterminate {
+            0% {
+                width: 0%;
+                margin-left: 0%;
+            }
+
+            50% {
+                width: 60%;
+                margin-left: 20%;
+            }
+
+            100% {
+                width: 0%;
+                margin-left: 100%;
+            }
+        }
+
+        /* ── Sidebar ────────────────────────── */
+        .sidebar {
+            width: 270px;
+            flex-shrink: 0;
+            background: rgba(13, 13, 26, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.07);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        .sidebar-card h4 {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Quick action grid */
+        .ctrl-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+        }
+
+        .ctrl-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.65rem 0.4rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(124, 58, 237, 0.18);
+            border-color: rgba(124, 58, 237, 0.45);
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.96);
+        }
+
+        .ctrl-btn .ci {
+            font-size: 1.15rem;
+        }
+
+        /* Key map */
+        .key-map {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .key-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.775rem;
+        }
+
+        .key-label {
+            color: var(--text-muted);
+        }
+
+        .key-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.11);
+            border-radius: 5px;
+            padding: 0.1rem 0.45rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text);
+        }
+
+        /* ROM info */
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.775rem;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+        }
+
+        .info-val {
+            color: var(--text);
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-align: right;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── Responsive ─────────────────────── */
+        @media (max-width: 860px) {
+            .player-body {
+                flex-direction: column;
+            }
+
+            .emu-panel {
+                min-height: 56vw;
+                flex-shrink: 0;
+            }
+
+            #game {
+                min-height: 56vw;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.07);
+                flex-direction: row;
+                flex-wrap: wrap;
+                overflow-y: visible;
+            }
+
+            .sidebar-card {
+                flex: 1;
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-direction: column;
+            }
+
+            .sidebar-card {
+                min-width: unset;
+            }
+
+            .player-header {
+                padding: 0.6rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <!-- ── Header ────────────────────────────────── -->
+    <header class="player-header">
+        <a href="index.html" class="back-btn">← Kembali</a>
+        <div class="player-meta">
+            <div class="player-title" id="header-game-name">Memuat...</div>
+            <div class="player-subtitle" id="header-subtitle">Game Boy Advance · EmulatorJS</div>
+        </div>
+    </header>
+
+    <!-- ── Body ──────────────────────────────────── -->
+    <div class="player-body">
+
+        <!-- Emulator area -->
+        <div class="emu-panel">
+
+            <!-- Loading overlay (sits on top of #game) -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-ring"></div>
+                <div class="loading-game-name" id="loading-name">Memuat game...</div>
+                <div class="loading-sub">Menyiapkan emulator · harap tunggu</div>
+                <div class="loading-progress-wrap">
+                    <div class="loading-progress-bar" id="loading-bar"></div>
+                </div>
+            </div>
+
+            <!-- EmulatorJS mounts here -->
+            <div id="game"></div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <!-- Quick Actions -->
+            <div class="sidebar-card">
+                <h4>Quick Actions</h4>
+                <div class="ctrl-grid">
+                    <button class="ctrl-btn" id="btn-save">
+                        <span class="ci">💾</span> Save State
+                    </button>
+                    <button class="ctrl-btn" id="btn-load">
+                        <span class="ci">📂</span> Load State
+                    </button>
+                    <button class="ctrl-btn" id="btn-fs">
+                        <span class="ci">⛶</span> Fullscreen
+                    </button>
+                    <button class="ctrl-btn" id="btn-mute">
+                        <span class="ci">🔊</span> Audio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keyboard Controls -->
+            <div class="sidebar-card">
+                <h4>Keyboard</h4>
+                <div class="key-map">
+                    <div class="key-row"><span class="key-label">D-Pad</span><span class="key-badge">Arrows</span></div>
+                    <div class="key-row"><span class="key-label">A Button</span><span class="key-badge">X</span></div>
+                    <div class="key-row"><span class="key-label">B Button</span><span class="key-badge">Z</span></div>
+                    <div class="key-row"><span class="key-label">L Trigger</span><span class="key-badge">A</span></div>
+                    <div class="key-row"><span class="key-label">R Trigger</span><span class="key-badge">S</span></div>
+                    <div class="key-row"><span class="key-label">Start</span><span class="key-badge">Enter</span></div>
+                    <div class="key-row"><span class="key-label">Select</span><span class="key-badge">Shift</span></div>
+                    <div class="key-row"><span class="key-label">Save State</span><span class="key-badge">F2</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">Load State</span><span class="key-badge">F4</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">Fullscreen</span><span class="key-badge">F</span></div>
+                </div>
+            </div>
+
+            <!-- ROM Info -->
+            <div class="sidebar-card">
+                <h4>Info ROM</h4>
+                <div class="info-list">
+                    <div class="info-row">
+                        <span class="info-label">Nama</span>
+                        <span class="info-val" id="info-name">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ukuran</span>
+                        <span class="info-val" id="info-size">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Core</span>
+                        <span class="info-val" id="info-core">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Terakhir main</span>
+                        <span class="info-val" id="info-played">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </div><!-- /.player-body -->
+
+    <!-- idb.js harus dimuat duluan (dibutuhkan untuk load ROM lokal) -->
+    <script src="idb.js"></script>
+
+    <!-- ── Script ─────────────────────────────────── -->
+    <script>
+        // ── Helpers ──────────────────────────────────────────────────
+        function el(id) { return document.getElementById(id); }
+
+        // ── Read URL params ───────────────────────────────────────────
+        const params = new URLSearchParams(location.search);
+        const romUrl = params.get('rom');
+        const gameId = params.get('id');
+        const romName = params.get('name') || 'Unknown Game';
+        const romSize = params.get('size') || '—';
+        const romCore = params.get('core') || 'gba';
+
+        // ── Populate static UI ────────────────────────────────────────
+        el('header-game-name').textContent = romName;
+        el('info-name').textContent = romName;
+        el('info-size').textContent = romSize;
+        el('info-core').textContent = romCore.toUpperCase();
+        el('info-played').textContent = '—';
+        el('header-subtitle').textContent = romCore.toUpperCase() + ' · EmulatorJS';
+        document.title = romName + ' — GBA Vault';
+
+        // ── Error display ─────────────────────────────────────────────
+        function showError(msg, detail = '') {
+            el('loading-overlay').innerHTML = `
+      <div style="font-size:2.5rem">⚠️</div>
+      <div style="color:#ef4444;font-size:1rem;font-weight:600;text-align:center;
+                  max-width:280px;line-height:1.5">${msg}</div>
+      ${detail ? `<div style="color:var(--text-muted);font-size:0.8rem;text-align:center;
+                      max-width:260px">${detail}</div>` : ''}
+      <a href="index.html"
+         style="color:#a855f7;font-size:0.875rem;text-decoration:none;margin-top:0.5rem;
+                border:1px solid rgba(168,85,247,0.4);padding:0.4rem 1rem;border-radius:8px">
+        ← Kembali ke Library
+      </a>`;
+        }
+
+        // ── Dismiss loading overlay ───────────────────────────────────
+        function dismissLoading() {
+            const ov = el('loading-overlay');
+            ov.classList.add('fade-out');
+            setTimeout(() => { ov.style.display = 'none'; }, 600);
+        }
+
+        // ── Update last-played di localStorage ───────────────────────
+        function updateLastPlayed() {
+            try {
+                const lib = JSON.parse(localStorage.getItem('gba_library') || '[]');
+                const idx = lib.findIndex(g => g.id === gameId || g.url === romUrl);
+                if (idx !== -1) {
+                    lib[idx].lastPlayed = new Date().toISOString();
+                    localStorage.setItem('gba_library', JSON.stringify(lib));
+                }
+            } catch (_) { }
+            el('info-played').textContent = 'Sekarang';
+        }
+
+        // ── Init EmulatorJS dengan finalUrl ───────────────────────────
+        function initEmulator(finalUrl) {
+            window.EJS_onGameStart = function () { dismissLoading(); updateLastPlayed(); };
+            window.EJS_player = '#game';
+            window.EJS_core = romCore;
+            window.EJS_gameUrl = finalUrl;
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            window.EJS_startOnLoaded = true;
+            window.EJS_color = '#7c3aed';
+            window.EJS_backgroundColor = '#000000';
+            window.EJS_localization = {};
+
+            // Intercept fetch untuk block request lokalisasi yang selalu 404
+            const _origFetch = window.fetch;
+            window.fetch = function (url, opts) {
+                if (typeof url === 'string' && url.includes('/localization/')) {
+                    console.log('[EJS] Blocked localization fetch:', url);
+                    return Promise.resolve(new Response('{}', {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    }));
+                }
+                return _origFetch.apply(this, arguments);
+            };
+
+            const s = document.createElement('script');
+            s.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+            s.async = true;
+            s.onerror = () => showError('Gagal memuat EmulatorJS', 'Pastikan koneksi internet aktif.');
+            document.body.appendChild(s);
+        }
+
+        // ── Quick-action buttons ──────────────────────────────────────
+        function ejsCall(fn) {
+            if (typeof EJS_emulator !== 'undefined') {
+                try { fn(EJS_emulator); } catch (e) { console.warn('EJS action:', e); }
+            }
+        }
+        el('btn-save').onclick = () => ejsCall(e => e.gameManager.save());
+        el('btn-load').onclick = () => ejsCall(e => e.gameManager.load());
+        el('btn-fs').onclick = () => ejsCall(e => e.settings.toggleFullscreen());
+        el('btn-mute').onclick = () => ejsCall(e => e.settings.toggleAudio());
+
+        // ── Entry point: pilih sumber ROM ────────────────────────────
+        (async function () {
+            if (gameId) {
+                try {
+                    const buf = await idbLoadROM(gameId);
+
+                    if (!buf || !(buf instanceof ArrayBuffer) || buf.byteLength === 0) {
+                        showError(
+                            'ROM tidak ditemukan di storage',
+                            'File mungkin sudah terhapus dari browser. Silakan upload ulang.'
+                        );
+                        return;
+                    }
+
+                    console.log(`ROM loaded from IDB: ${buf.byteLength} bytes`);
+
+                    // Gunakan Blob URL langsung di play.html (jauh lebih ringan dari base64)
+                    const blob = new Blob([buf], { type: 'application/octet-stream' });
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    console.log('Blob URL ready:', blobUrl);
+                    initEmulator(blobUrl);
+
+                } catch (err) {
+                    console.error('IDB error:', err);
+                    showError('Gagal membaca ROM dari storage', err.message || 'IndexedDB error.');
+                }
+            } else if (romUrl) {
+                initEmulator(romUrl);
+            } else {
+                showError('Tidak ada ROM', 'Tidak ada parameter ROM atau ID yang valid.');
+            }
+        })();
+
+        // ── Helper: ArrayBuffer → base64 string ──────────────────────
+        function arrayBufferToBase64(buffer) {
+            return new Promise((resolve, reject) => {
+                const blob = new Blob([buffer]);
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // result: "data:application/octet-stream;base64,XXXXXX"
+                    const dataUrl = reader.result;
+                    const base64 = dataUrl.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(blob);
+            });
+        }
+    </script>
+</body>
+
+</html>
