@@ -422,10 +422,14 @@
                 <h4>Keyboard</h4>
                 <div class="key-map">
                     <div class="key-row"><span class="key-label">D-Pad</span><span class="key-badge">Arrows</span></div>
-                    <div class="key-row"><span class="key-label">A Button</span><span class="key-badge">X</span></div>
-                    <div class="key-row"><span class="key-label">B Button</span><span class="key-badge">Z</span></div>
-                    <div class="key-row"><span class="key-label">L Trigger</span><span class="key-badge">A</span></div>
-                    <div class="key-row"><span class="key-label">R Trigger</span><span class="key-badge">S</span></div>
+                    <div class="key-row"><span class="key-label">A / Circle (◯)</span><span class="key-badge">D</span></div>
+                    <div class="key-row"><span class="key-label">B / Cross (✖)</span><span class="key-badge">S</span></div>
+                    <div class="key-row"><span class="key-label">Y / Square (□)</span><span class="key-badge">A</span></div>
+                    <div class="key-row"><span class="key-label">X / Triangle (△)</span><span class="key-badge">W</span></div>
+                    <div class="key-row"><span class="key-label">L1 / L Trigger</span><span class="key-badge">Q</span></div>
+                    <div class="key-row"><span class="key-label">R1 / R Trigger</span><span class="key-badge">E</span></div>
+                    <div class="key-row"><span class="key-label">L2</span><span class="key-badge">Z</span></div>
+                    <div class="key-row"><span class="key-label">R2</span><span class="key-badge">C</span></div>
                     <div class="key-row"><span class="key-label">Start</span><span class="key-badge">Enter</span></div>
                     <div class="key-row"><span class="key-label">Select</span><span class="key-badge">Shift</span></div>
                     <div class="key-row"><span class="key-label">Save State</span><span class="key-badge">F2</span>
@@ -533,6 +537,26 @@
             window.EJS_color = '#7c3aed';
             window.EJS_backgroundColor = '#000000';
             window.EJS_localization = {};
+
+            // Konfigurasi Keyboard Binding Custom
+            window.EJS_defaultControls = {
+                0: { // Player 1
+                    0:  { value: 's' }, // B / Cross
+                    1:  { value: 'a' }, // Y / Square
+                    2:  { value: 'shift' }, // Select
+                    3:  { value: 'enter' }, // Start
+                    4:  { value: 'up arrow' },
+                    5:  { value: 'down arrow' },
+                    6:  { value: 'left arrow' },
+                    7:  { value: 'right arrow' },
+                    8:  { value: 'd' }, // A / Circle
+                    9:  { value: 'w' }, // X / Triangle
+                    10: { value: 'q' }, // L1
+                    11: { value: 'e' }, // R1
+                    12: { value: 'z' }, // L2
+                    13: { value: 'c' }  // R2
+                }
+            };
 
             // Intercept fetch untuk block request lokalisasi yang selalu 404
             const _origFetch = window.fetch;

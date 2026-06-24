@@ -13,6 +13,11 @@ const EXT_CORE_MAP = {
   gba: 'gba',
   gbc: 'gambatte',
   gb:  'gambatte',
+  iso: 'psx',
+  bin: 'psx',
+  cue: 'psx',
+  chd: 'psx',
+  img: 'psx',
 };
 
 /** Random colorful emoji per game slot */
@@ -252,9 +257,9 @@ function handleDrop(e) {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files)
-    .filter(f => /\.(gba|gbc|gb|zip)$/i.test(f.name));
+    .filter(f => /\.(gba|gbc|gb|zip|iso|bin|cue|chd|img)$/i.test(f.name));
   if (files.length === 0) {
-    showToast('⚠️ Hanya file .gba / .gbc / .gb yang didukung.', 'error');
+    showToast('⚠️ Hanya file GBA/GBC/GB atau PS1 (.iso/.bin/.cue/.chd/.img) yang didukung.', 'error');
     return;
   }
   files.forEach(addFromFile);

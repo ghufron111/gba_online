@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GBA Vault — Emulator Personal</title>
-  <meta name="description" content="Emulator Game Boy Advance berbasis web. Mainkan ROM GBA favoritmu langsung di browser." />
+  <title>GBA & PS1 Vault — Emulator Personal</title>
+  <meta name="description" content="Emulator GBA & PS1 berbasis web. Mainkan ROM favoritmu langsung di browser." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -22,7 +22,7 @@
     <div class="header-inner">
       <div class="logo">
         <span class="logo-icon">🎮</span>
-        <span class="logo-text">GBA <span class="logo-accent">Vault</span></span>
+        <span class="logo-text">Retro <span class="logo-accent">Vault</span></span>
       </div>
       <nav class="nav">
         <a href="index.html" class="nav-link active">Library</a>
@@ -33,9 +33,9 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-badge">Game Boy Advance</div>
-    <h1 class="hero-title">Your Personal<br /><span class="gradient-text">GBA Collection</span></h1>
-    <p class="hero-sub">Mainkan ROM GBA favoritmu langsung di browser. Tanpa instalasi, tanpa batas.</p>
+    <div class="hero-badge">Game Boy & PlayStation 1</div>
+    <h1 class="hero-title">Your Personal<br /><span class="gradient-text">Retro Collection</span></h1>
+    <p class="hero-sub">Mainkan ROM GBA & PS1 favoritmu langsung di browser. Tanpa instalasi, tanpa batas.</p>
     <div class="hero-stats">
       <div class="stat-item">
         <span class="stat-val" id="rom-count">0</span>
@@ -59,8 +59,8 @@
     <div class="drop-zone" id="drop-zone">
       <div class="drop-icon">📂</div>
       <div class="drop-title">Drop ROM di sini</div>
-      <div class="drop-sub">atau klik untuk memilih file .gba / .gbc / .gb</div>
-      <input type="file" id="rom-file-input" accept=".gba,.gbc,.gb,.zip" hidden />
+      <div class="drop-sub">atau klik untuk memilih file GBA/GBC/GB atau PS1 (.chd/.iso/.bin/.cue)</div>
+      <input type="file" id="rom-file-input" accept=".gba,.gbc,.gb,.zip,.iso,.bin,.cue,.chd,.img" hidden />
       <button class="btn-primary" id="browse-btn">Pilih File ROM</button>
     </div>
   </section>
@@ -90,7 +90,7 @@
     <div class="modal-box">
       <button class="modal-close" id="close-url-modal">✕</button>
       <h3 class="modal-title">🌐 Tambah ROM dari URL</h3>
-      <p class="modal-desc">Masukkan URL langsung ke file .gba untuk menambahkan ke library.</p>
+      <p class="modal-desc">Masukkan URL langsung ke file ROM (.gba / .chd / .iso) untuk menambahkan ke library.</p>
       <input type="text" id="rom-url-input" class="modal-input" placeholder="https://example.com/game.gba" />
       <input type="text" id="rom-name-input" class="modal-input" placeholder="Nama game (opsional)" />
       <div class="modal-actions">
