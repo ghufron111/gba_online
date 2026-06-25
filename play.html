@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GBA Vault — Player</title>
+    <title>Playing — Retro Vault</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
     <meta name="description" content="Mainkan game GBA di browser menggunakan EmulatorJS." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -422,12 +424,18 @@
                 <h4>Keyboard</h4>
                 <div class="key-map">
                     <div class="key-row"><span class="key-label">D-Pad</span><span class="key-badge">Arrows</span></div>
-                    <div class="key-row"><span class="key-label">A / Circle (◯)</span><span class="key-badge">D</span></div>
-                    <div class="key-row"><span class="key-label">B / Cross (✖)</span><span class="key-badge">S</span></div>
-                    <div class="key-row"><span class="key-label">Y / Square (□)</span><span class="key-badge">A</span></div>
-                    <div class="key-row"><span class="key-label">X / Triangle (△)</span><span class="key-badge">W</span></div>
-                    <div class="key-row"><span class="key-label">L1 / L Trigger</span><span class="key-badge">Q</span></div>
-                    <div class="key-row"><span class="key-label">R1 / R Trigger</span><span class="key-badge">E</span></div>
+                    <div class="key-row"><span class="key-label">A / Circle (◯)</span><span class="key-badge">D</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">B / Cross (✖)</span><span class="key-badge">S</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">Y / Square (□)</span><span class="key-badge">A</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">X / Triangle (△)</span><span class="key-badge">W</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">L1 / L Trigger</span><span class="key-badge">Q</span>
+                    </div>
+                    <div class="key-row"><span class="key-label">R1 / R Trigger</span><span class="key-badge">E</span>
+                    </div>
                     <div class="key-row"><span class="key-label">L2</span><span class="key-badge">Z</span></div>
                     <div class="key-row"><span class="key-label">R2</span><span class="key-badge">C</span></div>
                     <div class="key-row"><span class="key-label">Start</span><span class="key-badge">Enter</span></div>
@@ -539,23 +547,43 @@
             window.EJS_localization = {};
 
             // Konfigurasi Keyboard Binding Custom
+            // RetroPad button index (sama untuk semua core EmulatorJS):
+            //   0=B/Cross(✖)  1=Y/Square(□)  2=Select  3=Start
+            //   4=Up  5=Down  6=Left  7=Right
+            //   8=A/Circle(◯)  9=X/Triangle(△)  10=L1  11=R1  12=L2  13=R2
+
+            const p1Controls = {
+                0:  { value: 's', value2: 'BUTTON_2' },             // B / Cross (✖)    → S
+                1:  { value: 'a', value2: 'BUTTON_4' },             // Y / Square (□)   → A
+                2:  { value: 'shift', value2: 'SELECT' },            // Select           → Shift
+                3:  { value: 'enter', value2: 'START' },             // Start            → Enter
+                4:  { value: 'up arrow', value2: 'DPAD_UP' },
+                5:  { value: 'down arrow', value2: 'DPAD_DOWN' },
+                6:  { value: 'left arrow', value2: 'DPAD_LEFT' },
+                7:  { value: 'right arrow', value2: 'DPAD_RIGHT' },
+                8:  { value: 'd', value2: 'BUTTON_1' },              // A / Circle (◯)   → D
+                9:  { value: 'w', value2: 'BUTTON_3' },              // X / Triangle (△) → W
+                10: { value: 'q', value2: 'LEFT_TOP_SHOULDER' },     // L1               → Q
+                11: { value: 'e', value2: 'RIGHT_TOP_SHOULDER' },    // R1               → E
+                12: { value: 'z', value2: 'LEFT_BOTTOM_SHOULDER' },  // L2               → Z
+                13: { value: 'c', value2: 'RIGHT_BOTTOM_SHOULDER' }, // R2               → C
+                14: { value: 't', value2: 'LEFT_STICK' },            // L3               → T
+                15: { value: 'y', value2: 'RIGHT_STICK' },           // R3               → Y
+                16: { value: 'up arrow', value2: 'LEFT_STICK_UP' },
+                17: { value: 'down arrow', value2: 'LEFT_STICK_DOWN' },
+                18: { value: 'left arrow', value2: 'LEFT_STICK_LEFT' },
+                19: { value: 'right arrow', value2: 'LEFT_STICK_RIGHT' },
+                20: { value: 'i', value2: 'RIGHT_STICK_UP' },
+                21: { value: 'k', value2: 'RIGHT_STICK_DOWN' },
+                22: { value: 'j', value2: 'RIGHT_STICK_LEFT' },
+                23: { value: 'l', value2: 'RIGHT_STICK_RIGHT' }
+            };
+
             window.EJS_defaultControls = {
-                0: { // Player 1
-                    0:  { value: 's' }, // B / Cross
-                    1:  { value: 'a' }, // Y / Square
-                    2:  { value: 'shift' }, // Select
-                    3:  { value: 'enter' }, // Start
-                    4:  { value: 'up arrow' },
-                    5:  { value: 'down arrow' },
-                    6:  { value: 'left arrow' },
-                    7:  { value: 'right arrow' },
-                    8:  { value: 'd' }, // A / Circle
-                    9:  { value: 'w' }, // X / Triangle
-                    10: { value: 'q' }, // L1
-                    11: { value: 'e' }, // R1
-                    12: { value: 'z' }, // L2
-                    13: { value: 'c' }  // R2
-                }
+                0: p1Controls,
+                1: p1Controls,
+                2: p1Controls,
+                3: p1Controls
             };
 
             // Intercept fetch untuk block request lokalisasi yang selalu 404
